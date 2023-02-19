@@ -1,4 +1,5 @@
 from fastapi import FastAPI,Depends,Response,status,HTTPException,File,UploadFile
+from secrets import token_hex
 import schemas,model
 
 app = FastAPI()
@@ -29,14 +30,19 @@ def create(request: schemas.newusers,db: Session = Depends(get_db)):
 
 
 #Here is the function that add a user profile picutre into a database
-@app.post("/file_upload")
-def profile(file:UploadFile,db: Session = Depends(get_db)):
-    profiles=model.ProfilePicture(profile_picture=file.filename)
-    db.add(profiles)
-    db.commit()
-    db.refresh(profiles)
-    # return {"user profile":file.filename}
-    return profiles
+@app.post("/file_uploaddd")
+async def CreateUserProfile(file:UploadFile =File(...),db: Session = Depends(get_db)):
+    file_ext=file.filename.split(".").pop()
+    file_name=token_hex(10)
+    file_path=f"{file_name}.{file_ext}"
+    with open(file_path,"wb") as f:
+        content= await file.read()
+        f.write(content)
+        profiles=model.ProfilePicture(profile_picture=content)
+        db.add(profiles)
+        db.commit()
+        db.refresh(profiles)
+    return {"sucess":True,"file_path":file_path,"message":"file uploaded successfully !"}
 
 #showing all the users here
 @app.get("/show_users")
