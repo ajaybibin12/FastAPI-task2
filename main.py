@@ -30,7 +30,7 @@ def create(request: schemas.newusers,db: Session = Depends(get_db)):
 
 
 #Here is the function that add a user profile picutre into a database
-@app.post("/file_uploaddd")
+@app.post("/file_upload")
 async def CreateUserProfile(file:UploadFile =File(...),db: Session = Depends(get_db)):
     file_ext=file.filename.split(".").pop()
     file_name=token_hex(10)
